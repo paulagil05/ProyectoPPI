@@ -1,0 +1,843 @@
+import pygame, sys
+
+from ayudas import *
+
+from ventana2 import *
+
+
+
+if __name__ == '__main__':
+
+    while True:
+
+        Ayudas.EVENTOS = pygame.event.get()
+
+        for evento in Ayudas.EVENTOS:
+           
+            if evento.type == QUIT or (evento.type == KEYDOWN and evento.key == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+
+
+            if evento.type == pygame.KEYUP:
+                if evento.key == pygame.K_RIGHT:
+                    Ayudas.ACCION = 'pausado_derecha'
+                
+                if evento.key == pygame.K_LEFT:
+                    Ayudas.ACCION = 'pausado_izquierda'
+
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_ESCAPE:
+                    Ayudas.ACCION = 'saltando_derecha'
+                if evento.key == pygame.K_ESCAPE:
+                    Ayudas.ACCION = 'saltando_izquierda'
+    
+        ventana.fill(BLANCO)
+
+        verVentana2()
+
+        pygame.display.update()
+        RELOJ.tick(FPS)
+
+
+import pygame
+
+from ayudas import *
+
+from jugador import *
+
+import objetos
+from policia import *
+
+from ladron import *
+
+from plataforma import *
+
+from objetos import *
+
+class Titulo1:
+        texto = 'Urban Heist'
+        letra = FONT1
+        color = AZUL
+        x = 210
+        y = 50
+        size = 50
+        parpadear = False
+        parpadeo = 0
+        tiempo = 15
+
+class Boton1:
+        texto = 'press start'
+        letra = FONT3
+        color = NEGRO
+        x = 300
+        y = 200
+        size = 30
+        parpadear = False
+        parpadeo = 0
+        tiempo = 10
+
+class TextoParpadeante:
+        texto = 'arcade game...please wait'
+        letra = FONT2
+        color = BLANCO
+        x = 285
+        y = 300
+        size = 20
+        parpadear = True
+        parpadeo = 0
+        tiempo = 45
+
+class FONDO1:
+    fondo = pygame.image.load("./imagenes/fondos/6.png").convert_alpha()
+    imagen = pygame.transform.scale(fondo,(ANCHO,ALTO))
+    ancho = imagen.get_rect().size[0]
+    posicion = 0
+
+class FONDO2:
+    fondo = pygame.image.load("./imagenes/fondos/7.png").convert_alpha()
+    imagen = pygame.transform.scale(fondo,(ANCHO,ALTO))
+    ancho = imagen.get_rect().size[0]
+    posicion = 0
+
+
+class Piso1:
+    sprite = None
+    color = BLANCO
+    size = VECTOR((90,20))
+    coord = VECTOR ((500,600))
+
+plataforma(Piso1)
+
+SPRITES.add(Piso1.sprite)
+
+SPRITES.add(Policia.sprite)
+
+SPRITES.add(Ladron.sprite)
+
+class Carretera:
+    sprite = None
+    color = BLANCO
+    size = VECTOR((ANCHO,20))
+    coord = VECTOR ((ANCHO/2,ALTO))
+
+plataforma(Carretera) 
+SPRITES.add(Carretera.sprite)
+
+PLATAFORMAS.add(Piso1.sprite)
+PLATAFORMAS.add(Carretera.sprite)
+
+class Moneda:
+     sprite = None
+     imagen = './objetos/goldcoin.png'
+     size = VECTOR((70,70))
+     coord = VECTOR((500,600))
+     velocidad = VECTOR ((0,0))
+     angulo = 0
+
+objeto(Moneda)
+SPRITES.add(Moneda.sprite)
+
+class Moneda:
+     sprite = None
+     imagen = './objetos/goldcoin.png'
+     size = VECTOR((70,70))
+     coord = VECTOR((400,590))
+     velocidad = VECTOR ((0,0))
+     angulo = 0
+
+objeto(Moneda)
+SPRITES.add(Moneda.sprite)
+
+class Carro:
+     sprite = None
+     imagen = './objetos/car.png'
+     size = VECTOR((70,70))
+     coord = VECTOR ((600,700))
+     velocidad = VECTOR ((0,0))
+     angulo = 0
+
+objeto(Carro)
+SPRITES.add(Carro.sprite)
+
+def verVentana2():
+    
+    desplazarFondo(FONDO1)
+        
+    ponerTexto(Titulo1)
+
+    ponerTexto(Boton1) 
+
+    ponerTextoParpadeante(TextoParpadeante)
+
+    mover(Policia)
+
+    mover(Ladron)
+
+    actualizar(Policia)
+
+    actualizar(Ladron)
+
+    actualizar(Carro)
+    
+    
+    
+
+    for sprite in SPRITES:
+        ventana.blit(sprite.image,sprite.rect)
+        
+    girar(Moneda,8)
+
+    if colisionan(Policia,Ladron):
+         ventana.fill(ORQUIDEAOSCURA)
+
+    if colisionan(Ladron,Policia):
+         ventana.fill(ORQUIDEAOSCURA)
+
+
+import pygame
+
+from ayudas import *
+
+'''
+class Plataforma:
+    sprite = None
+    color = (255,0,0)
+    size = VECTOR((ANCHO,20))
+    coord = VECTOR ((0,0))
+'''
+
+def plataforma(plataforma):
+
+    surface = pygame.Surface((plataforma.size))
+    surface.fill(plataforma.color)
+
+    sprite = pygame.sprite.Sprite()
+    sprite.image = surface
+    sprite.rect = surface.get_rect(midbottom=(plataforma.coord))
+
+    plataforma.sprite = sprite 
+
+
+import pygame
+
+from pygame.sprite import Sprite
+
+from ayudas import *
+
+'''
+class Objeto:
+    sprite = None
+    imagen = './imagenes/objetos.png'
+    size = VECTOR((64,64))
+    coord = VECTOR((530,560))
+    velocidad = VECTOR((0,0))
+    angulo = 0
+'''
+def objeto(objeto):
+
+    sprite = Sprite()
+
+    imagen = pygame.image.load(objeto.imagen).convert_alpha()
+    sprite.image = pygame.transform.scale(imagen,(objeto.size.x,objeto.size.y))
+    sprite.rect = sprite.image.get_rect(midbottom=(objeto.coord))
+
+    objeto.sprite = sprite
+
+
+
+def girar(objeto,angulo):
+
+    objeto.angulo += angulo
+    rotado = pygame.transform.rotate(objeto.sprite.image,objeto.angulo)
+    ventana.blit(rotado,rotado.get_rect(center=(objeto.coord.x,objeto.coord.y)))
+
+
+def colisionan(objeto1,objeto2):
+    return (objeto1.coord.x+objeto1.size.x/2 >= objeto2.coord.x-objeto2.size.x/2 and
+            objeto1.coord.x+objeto1.size.x/2 <= objeto2.coord.x+objeto2.size.x/2 and
+            objeto1.coord.y-objeto1.size.y/2 >= objeto2.coord.y - objeto2.size.y
+    ) 
+
+
+import pygame
+
+from pygame.locals import *
+
+pygame.init()
+
+pygame.font.init()
+
+FPS = 30
+
+RELOJ = pygame.time.Clock()
+
+ventana = pygame.display.set_mode((900,700))
+
+pygame.display.set_caption('ProyectoPPI')
+
+ANCHO, ALTO = size = ventana.get_size()
+
+class Ayudas:
+
+    pygame.init()
+
+    EVENTOS = pygame.event.get()
+
+    JUEGO_ACTIVO = True
+
+    ACCION = 'ninguna'
+
+# COLORES:
+
+NEGRO = (0,0,0)
+BLANCO = (255,255,255)
+NEGRO = (0,0,0)   
+BLANCO = (255,255,255) 
+AZULCIELO = (135,206,255)
+PURPURA = (85,26,139)
+DODGERAZUL = (16,78,139)
+VERDELIMA = (0,255,0)
+CORAL = (139,62,47)
+LADRILLO = (156,102,31)
+SGLGRISCLARO = (170,170,170)
+AZUL = (0,0,255)
+GRIS25 = (64,64,64)
+ORQUIDEAOSCURA = (104,34,139)
+
+#FONTS
+
+FONT1 = 'DESTENCI.ttf'
+FONT2 = 'slkscr.ttf'
+FONT3 = 'slkscreb.ttf'
+
+#Plantilla para el texto
+'''
+class Nombre:
+        texto = 'press SPACE to PAUSE'
+        letra = FONT1
+        color = AZUL
+        x = 100
+        y = 50
+        size = 40
+        parpadear = False
+        parpadeo = 0
+        tiempo = 10
+'''
+
+def ponerTexto(texto):
+    tipoLetra = pygame.font.Font('./fonts/'+texto.letra,texto.size)
+    ventana.blit(tipoLetra.render(str(texto.texto),True,texto.color),(texto.x,texto.y))
+
+
+def ponerTextoParpadeante(texto):
+
+        if texto.parpadear and texto.parpadeo <= texto.tiempo:
+                    RELOJ.tick(40)
+                    texto.parpadeo += 1
+                    ponerTexto(texto)
+                    texto.parpadear = False
+        else:
+               texto.parpadear = True
+
+
+'''
+class FONDO:
+    fondo = pygame.image.load("./imagenes/fondos/6.png").convert_alpha()
+    imagen = pygame.transform.scale(fondo,(ANCHO,ALTO))
+    ancho = imagen.get_rect().size[0]
+    posicion = 0
+'''
+def desplazarFondo(fondo):
+       
+       ventana.blit(fondo.imagen,(fondo.posicion,0))
+
+       ventana.blit(fondo.imagen,(fondo.ancho + fondo.posicion,0))
+
+       fondo.posicion -= 3
+
+       if abs(fondo.posicion) > fondo.ancho:
+            fondo.posicion = 0
+
+VECTOR = pygame.math.Vector2
+
+SPRITES = pygame.sprite.Group()
+
+PLATAFORMAS = pygame.sprite.Group()
+
+GRAVEDAD = 0.5
+
+FRICCION = -0.12
+
+
+
+
+import pygame
+
+from pygame.sprite import Sprite
+
+from ayudas import *
+
+
+'''
+class Jugador:
+    sprite = None
+    imagen = './imagen(1).png'
+    size = VECTOR((64,128))
+    coord = VECTOR((32,64))
+    velocidad = VECTOR((0,0))
+    gravedad = VECTOR ((0,0))
+    indice = 0
+    movimientos = []
+'''
+def jugador(jugador):
+
+    sprite = Sprite()
+
+    imagen = pygame.image.load(jugador.imagen).convert_alpha()
+    sprite.image = pygame.transform.scale(imagen,(jugador.size.x,jugador.size.y))
+    sprite.rect = sprite.image.get_rect(midbottom=(jugador.coord))
+
+    jugador.sprite = sprite
+
+def mover(jugador):
+
+    jugador.gravedad = VECTOR ((0,0.5))
+
+    teclas = pygame.key.get_pressed()
+
+    if teclas[K_RIGHT]:
+         jugador.gravedad.x = GRAVEDAD
+         cargarAnimaciones(jugador,0)
+
+    elif teclas[K_LEFT]:
+        jugador.gravedad.x = -GRAVEDAD
+        cargarAnimaciones(jugador,1)
+
+    elif Ayudas.ACCION == 'pausado_derecha':
+        cargarAnimaciones(jugador,2)
+
+    elif Ayudas.ACCION == 'pausado_izquierda':
+        cargarAnimaciones(jugador,3)
+
+    elif Ayudas.ACCION == 'saltando_derecha':
+        saltar(jugador)
+        cargarAnimaciones(jugador,4)
+        jugador.coord.x += 20
+        Ayudas.ACCION = 'ninguna'
+
+    elif Ayudas.ACCION == 'saltando_izquierda':
+        saltar(jugador)
+        cargarAnimaciones(jugador,5)
+        jugador.coord.x -= 20
+        Ayudas.ACCION = 'ninguna'
+
+
+    jugador.gravedad.x += jugador.velocidad.x * FRICCION
+    jugador.velocidad += jugador.gravedad
+    jugador.coord += jugador.velocidad + 0.5 * jugador.gravedad
+
+    if jugador.coord.x > ANCHO:
+        jugador.coord.x = ANCHO
+    if jugador.coord.x < 0:
+        jugador.coord.x = 0
+
+    jugador.sprite.rect.midbottom = jugador.coord
+
+def cargarAnimaciones(jugador,animacion):
+    animaciones = jugador.movimientos[animacion]
+    jugador.indice = moverAnimaciones(animaciones,jugador.indice)
+    jugador.sprite.image = animaciones[jugador.indice]
+
+def moverAnimaciones(animaciones,actual):
+
+    if actual < len(animaciones)-1:
+        actual += 1
+    else:
+        actual = 0
+
+    return actual
+
+def actualizar(jugador):
+
+        colisiones = pygame.sprite.spritecollide(jugador.sprite,PLATAFORMAS,False)
+        if jugador.velocidad.y > 0:
+            if colisiones:
+                if jugador.sprite.rect.bottom > colisiones[0].rect.top:
+                    jugador.coord.y = colisiones[0].rect.top
+                    jugador.velocidad.y = 0
+
+
+def saltar(jugador):
+    colisiones = pygame.sprite.spritecollide(jugador.sprite,PLATAFORMAS,False)
+    if colisiones:
+        jugador.velocidad.y = -10
+
+
+
+
+
+import pygame
+
+from pygame.sprite import Sprite
+
+from jugador import *
+
+class Ladron:
+    sprite = None
+    imagen = './imagenes/personajes/run(1.1).png'
+    size = VECTOR((64,128))
+    coord = VECTOR((150,680))
+    velocidad = VECTOR((5,0))
+    gravedad = VECTOR ((0,0))
+    indice = 0
+    movimientos = []
+
+jugador(Ladron)
+
+ANCHO_LADRON,ALTO_LADRON = (Ladron.size.x,Ladron.size.y)
+
+
+caminar_derecha = []
+
+#caminar_derecha:
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(1.1).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(2.2).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(3.3).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(4.4).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(5.5).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(6.6).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(7.7).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(8.8).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)
+
+
+Ladron.movimientos.append(caminar_derecha) # indice 0
+
+
+caminar_izquierda = []
+
+# caminar_izquierda
+for sprite in caminar_derecha:
+    caminar_izquierda.append(pygame.transform.flip(sprite,True,False))#imagen,horizontal,vertical
+
+Ladron.movimientos.append(caminar_izquierda) # 1
+
+# Inactivo derecha:
+
+inactivo_derecha = []
+
+
+inactivo_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/idle(1.1).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)
+
+
+Ladron.movimientos.append(inactivo_derecha) # 2
+
+# Inactivo izquierda:
+
+inactivo_izquierda = []
+
+
+for sprite in inactivo_izquierda:
+    inactivo_izquierda.append(pygame.transform.flip(sprite,True,False))#imagen,horizontal,vertical
+
+inactivo_izquierda.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/idle(2.2).png'),
+        (ANCHO_LADRON,ALTO_LADRON)
+    )
+)    
+
+Ladron.movimientos.append(inactivo_izquierda) # 3
+
+# saltar_derecha:
+saltar_derecha = []
+
+
+saltar_derecha.append(
+    pygame.transform.scale(pygame.image.load('./imagenes/personajes/jump(der).png'),(ANCHO_LADRON,ALTO_LADRON)) 
+)    
+
+saltar_derecha.append(
+    pygame.transform.scale(pygame.image.load('./imagenes/personajes/jumped(1).png'),(ANCHO_LADRON,ALTO_LADRON)) 
+)    
+
+
+Ladron.movimientos.append(saltar_derecha) # 4
+
+
+
+saltar_izquierda = []
+
+# saltar_izquierda:
+
+for sprite in saltar_izquierda:
+    saltar_izquierda.append(pygame.transform.flip(sprite,True,False))#imagen,horizontal,vertical
+
+
+Ladron.movimientos.append(saltar_izquierda) # 5
+
+
+
+
+import pygame
+
+from pygame.sprite import Sprite
+
+from jugador import *
+
+
+class Policia:
+    sprite = None
+    imagen = './imagenes/personajes/run(1).png'
+    size = VECTOR((64,128))
+    coord = VECTOR((45,680))
+    velocidad = VECTOR((0,0))
+    gravedad = VECTOR ((0,0))
+    indice = 0
+    movimientos = []
+
+jugador(Policia)
+
+ANCHO_POLICIA,ALTO_POLICIA = (Policia.size.x,Policia.size.y)
+
+
+caminar_derecha = []
+
+#caminar_derecha:
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(1).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(2).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(3).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(4).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(5).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(6).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+caminar_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/run(7).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+Policia.movimientos.append(caminar_derecha) # indice 0
+
+
+caminar_izquierda = []
+
+# caminar_izquierda
+for sprite in caminar_derecha:
+    caminar_izquierda.append(pygame.transform.flip(sprite,True,False))#imagen,horizontal,vertical
+
+Policia.movimientos.append(caminar_izquierda) # 1
+
+# Inactivo derecha:
+inactivo_derecha = []
+
+
+inactivo_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/idle(1).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+inactivo_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/idle(2).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+inactivo_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/idle(3).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+inactivo_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/idle(4).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+inactivo_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/idle(5).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+inactivo_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/idle(6).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+)
+
+inactivo_derecha.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/idle(7).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+    
+)
+
+Policia.movimientos.append(inactivo_derecha) # 2
+
+# Inactivo izquierda:
+
+
+inactivo_izquierda = []
+
+
+for sprite in inactivo_izquierda:
+    inactivo_izquierda.append(pygame.transform.flip(sprite,True,False))#imagen,horizontal,vertical
+
+inactivo_izquierda.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/shimmey(1).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+    
+)
+
+inactivo_izquierda.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/shimmey(2).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+    
+)
+
+inactivo_izquierda.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/shimmey(3).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+    
+)
+
+inactivo_izquierda.append(
+    pygame.transform.scale(
+        pygame.image.load('./imagenes/personajes/shimmey(4).png'),
+        (ANCHO_POLICIA,ALTO_POLICIA)
+    )
+    
+)
+
+Policia.movimientos.append(inactivo_izquierda) # 3
+
+# saltar_derecha:
+saltar_derecha = []
+
+
+saltar_derecha.append(
+    pygame.transform.scale(pygame.image.load('./imagenes/personajes/jumpder(1).png'),(ANCHO_POLICIA,ALTO_POLICIA)) 
+)    
+
+saltar_derecha.append(
+    pygame.transform.scale(pygame.image.load('./imagenes/personajes/jumper(2).png'),(ANCHO_POLICIA,ALTO_POLICIA)) 
+)  
+
+Policia.movimientos.append(saltar_derecha) # 4
+
+
+saltar_izquierda = []
+
+# saltar_izquierda:
+
+for sprite in saltar_izquierda:
+    saltar_izquierda.append(pygame.transform.flip(sprite,True,False))#imagen,horizontal,vertical
+
+
+Policia.movimientos.append(saltar_izquierda) # 5
